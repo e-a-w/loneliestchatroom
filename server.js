@@ -30,7 +30,7 @@ app.get("/messages/:id", (req, res) => {
 app.post("/messages", (req, res) =>{
     const newMessage = {
         "id": messageArray.length,
-        "message": req.body.messageNameg
+        "message": req.body.messageName
     }
     messageArray.push(newMessage);
     console.log(messageArray);

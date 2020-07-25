@@ -43,7 +43,7 @@ const formSubmit = (event) => {
   const options = {
     method: 'post',
     headers: {'Content-Type': 'application/json'},
-    body: textbox.value.toJSON
+    body: { textbox.value }
   }
 
   fetch('/messages', options)

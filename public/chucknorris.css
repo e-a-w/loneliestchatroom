@@ -1,0 +1,70 @@
+*{
+  box-sizing: border-box;
+  font-family: "Arial Black", Gadget, sans-serif
+}
+body{
+  background-color: lightgoldenrodyellow;
+  background-image: url('https://wallpapercave.com/wp/w2nw6je.jpg');
+  background-size: cover;
+}
+#main{
+  display: grid;
+  background: black;
+  border: 10px solid black;
+  border-radius: 5px;
+  grid-template-columns: 1fr;
+  grid-gap: 10px;
+  margin: 0 10%;
+}
+#heading{
+  display: grid;
+  place-items: center;
+  background-color: aliceblue;
+  border-radius: 10px;
+  padding: 30px;
+}
+h1, h3{
+  margin: 0;
+  text-shadow: 3px 3px 3px lightgray;
+}
+#chatbox{
+  height: 400px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  overflow-y: scroll;
+}
+.message{
+  display: grid;
+  grid-template-columns: 1fr 90px 10fr 1fr;
+  grid-gap: 10px;
+  padding: 5px;
+  border-radius: 5px;
+}
+.message:hover{
+  background-color: lightgray;
+}
+input{
+  width: 100%;
+  font-size: 1.5rem;
+  padding: 5px;
+}
+button{
+  font-size: 1.5rem;
+  padding: 5px;
+  cursor: pointer;
+}
+.sender{
+  color: blue;
+  display: flex;
+}
+.delete{
+  cursor: pointer;
+  justify-self: end;
+}
+.chuck{
+    height: 25px;
+}

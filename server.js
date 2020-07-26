@@ -19,7 +19,7 @@ app.get("/messages", (req, res) =>{
     if (messageArray.length > 0 ) {
         res.send(messageArray);
     } else {
-        res.send("MESSAGES")
+        res.send("NO MESSAGES HERE")
     }
 })
 

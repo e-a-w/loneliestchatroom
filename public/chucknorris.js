@@ -45,32 +45,37 @@ const loadMessages = () => {
 
 window.addEventListener('load', loadMessages);
 
-// handle form submit, send and get data from server
-const formSubmit = (event) => {
-  event.preventDefault();
-  let thisTime = timestamp();
-  let randomSender = meMyselfI();
+// post data and create message based on response
 
+const makePost = (sender, message) => {
+  let thisTime = timestamp();
+  let thisSender = sender;
+  let thisMessage = message;
   let text = {
     "timestamp": `${thisTime}`,
-    "sender": `${randomSender}`,
-    "message": `${textbox.value}`
+    "sender": `${thisSender}`,
+    "message": `${thisMessage}`
   };
   text = JSON.stringify(text);
-  
+
   const options = {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: text
   }
-
+  
   fetch('/messages', options)
     .then(response => response.json())
     .then(res => {
       createMessage(res.id, res.timestamp, res.sender, res.message);
     })
     .catch(error => console.error(error));
+}
 
+// handle form submit, send and get data from server
+const formSubmit = (event) => {
+  event.preventDefault();
+  makePost(meMyselfI(), textbox.value)
   textbox.value = "";
 }
 
@@ -81,38 +86,11 @@ const chuckNorris = () => {
   fetch('https://api.icndb.com/jokes/random')
     .then(res => res.json())
     .then(data => {
-      let randomJoke = data.value.joke;
-      jokePost(randomJoke);
-      // createMessage(timestamp(), `<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `, randomJoke);
+      makePost(`<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `, data.value.joke);
     }).catch(err => console.error(err));
 }
 
 button.addEventListener("click", chuckNorris);
-
-//
-
-const jokePost = (joke) => {
-  let theTime = timestamp();
-  let theText = {
-    "timestamp": `${theTime}`,
-    "sender": `<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `,
-    "message": `${joke}`
-  };
-  theText = JSON.stringify(theText);
-
-  const options = {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: theText
-  }
-
-  fetch('/messages', options)
-    .then(response => response.json())
-    .then(res => {
-      createMessage(res.id, res.timestamp, res.sender, res.message);
-    })
-    .catch(err => console.error(err));
-}
 
 // delete message
 

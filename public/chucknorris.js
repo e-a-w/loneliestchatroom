@@ -1,17 +1,15 @@
-// const { json } = require("body-parser");
-
 // global variables
 const button = document.querySelector("button");
 const chatbox = document.getElementById("chatbox");
 const textbox = document.querySelector("input");
 const form = document.querySelector("form");
-let mssgId = 0;
+let senderIndex = 0;
 
 // generate me, myself or I randomly
 const meMyselfI = () => {
   let senders = ["Me: ", "Myself: ", "I: "];
-  let randomSender = Math.floor(Math.random() * senders.length);
-  return senders[randomSender];
+  let randomIndex = Math.floor(Math.random() * senders.length);
+  return senders[randomIndex];
 }
 
 const timestamp = () => {
@@ -21,33 +19,56 @@ const timestamp = () => {
 }
 
 // create new message
-const createMessage = (sender, text) => {
+const createMessage = (id, time, sender, text) => {
   let newMssg = document.createElement("div");
   newMssg.classList.add("message");
-  newMssg.setAttribute("id", mssgId);
+  newMssg.setAttribute("id", id);
   newMssg.innerHTML = `
-		  <span>${timestamp()}</span>
+		  <span>${time}</span>
           <span class="sender">${sender}</span>
           <span>${text}</span>
-          <span onclick="deleteMessage(${mssgId})" class="delete">❌</span>`
+          <span onclick="deleteMessage(${id})" class="delete">❌</span>`
   chatbox.appendChild(newMssg);
-  mssgId++;
-  console.log(newMssg);
 }
 
-// handle form submit
+// load any old messages
+
+const loadMessages = () => {
+  fetch('/messages')
+    .then(res => res.json())
+    .then(res => {
+      res.forEach(mssg => {
+        createMessage(mssg.id, mssg.timestamp, mssg.sender, mssg.message);
+      })
+  }).catch(err => console.error(err));
+}
+
+window.addEventListener('load', loadMessages);
+
+// handle form submit, send and get data from server
 const formSubmit = (event) => {
   event.preventDefault();
-  createMessage(meMyselfI(), textbox.value);
+  let thisTime = timestamp();
+  let randomSender = meMyselfI();
+
+  let text = {
+    "timestamp": `${thisTime}`,
+    "sender": `${randomSender}`,
+    "message": `${textbox.value}`
+  };
+  text = JSON.stringify(text);
   
   const options = {
-    method: 'post',
+    method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: { textbox.value }
+    body: text
   }
 
   fetch('/messages', options)
-    .then(response => console.log(response))
+    .then(response => response.json())
+    .then(res => {
+      createMessage(res.id, res.timestamp, res.sender, res.message);
+    })
     .catch(error => console.error(error));
 
   textbox.value = "";
@@ -61,17 +82,44 @@ const chuckNorris = () => {
     .then(res => res.json())
     .then(data => {
       let randomJoke = data.value.joke;
-      createMessage(`<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `, randomJoke);
+      jokePost(randomJoke);
+      // createMessage(timestamp(), `<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `, randomJoke);
     }).catch(err => console.error(err));
 }
 
 button.addEventListener("click", chuckNorris);
 
-//delete message
+//
+
+const jokePost = (joke) => {
+  let theTime = timestamp();
+  let theText = {
+    "timestamp": `${theTime}`,
+    "sender": `<img class="chuck" src='https://cdn.hipwallpaper.com/i/74/41/pRjTyh.jpg'> Fact: `,
+    "message": `${joke}`
+  };
+  theText = JSON.stringify(theText);
+
+  const options = {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: theText
+  }
+
+  fetch('/messages', options)
+    .then(response => response.json())
+    .then(res => {
+      createMessage(res.id, res.timestamp, res.sender, res.message);
+    })
+    .catch(err => console.error(err));
+}
+
+// delete message
 
 const deleteMessage = (id) => {
-  let mssge = document.getElementById(id);
-  console.log(id);
-  console.log(mssge);
-  mssge.remove();
+  let thisMessage = document.getElementById(id);
+  thisMessage.remove();
+  fetch(`messages/${id}`, {method: 'DELETE'})
+  .then(res => res.json())
+  .catch(err => console.error(err));
 }

@@ -8,6 +8,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(bodyParser.json());
 
 let messageArray = [];
+let mssgID = 0;
 
 app.get("/", (req, res) => {
     console.log( req.url );
@@ -15,7 +16,11 @@ app.get("/", (req, res) => {
 })
 
 app.get("/messages", (req, res) =>{
-    res.send(messageArray);
+    if (messageArray.length > 0 ) {
+        res.send(messageArray);
+    } else {
+        res.send("MESSAGES")
+    }
 })
 
 app.get("/messages/:id", (req, res) => {
@@ -29,12 +34,28 @@ app.get("/messages/:id", (req, res) => {
 
 app.post("/messages", (req, res) =>{
     const newMessage = {
-        "id": messageArray.length,
-        "message": req.body.messageName
+        "id": mssgID,
+        "timestamp": req.body.timestamp,
+        "sender": req.body.sender,
+        "message": req.body.message
     }
+    mssgID++;
     messageArray.push(newMessage);
     console.log(messageArray);
+    res.send(newMessage);
 })
+
+app.delete("/messages/:id", (req, res, next) => {
+    const messageID = Number(req.params.id);
+    const messageToDelete = messageArray.find((mssg) => mssg.id === messageID);
+    if (messageToDelete) {
+      const indexOfItemToDelete = messageArray.indexOf(messageToDelete);
+      messageArray.splice(indexOfItemToDelete, 1);
+      res.json(messageToDelete);
+    } else {
+      res.status(404).json({ error: "message does not exist "});
+    }
+  });
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
